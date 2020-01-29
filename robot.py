@@ -39,20 +39,38 @@ class MyRobot(wpilib.TimedRobot):
 
         self.temp = 1
 
+        # Set up drive train motor controllers, Falcon 500 using TalonFX.
         self.l_motorBack = ctre.TalonFX(1)
+        self.l_motorBack.setInverted(True)
 
         self.l_motorFront = ctre.TalonFX(3)
+        self.l_motorFront.setInverted(True)
 
         self.r_motorBack = ctre.TalonFX(2)
-        self.r_motorBack.setInverted(True)
+        self.r_motorBack.setInverted(False)
 
         self.r_motorFront = ctre.TalonFX(4)
-        self.r_motorFront.setInverted(True)
+        self.r_motorFront.setInverted(False)
 
+        # At the moment, we think we want to coast.
         self.l_motorBack.setNeutralMode(ctre._ctre.NeutralMode.Coast)
         self.l_motorFront.setNeutralMode(ctre._ctre.NeutralMode.Coast)
         self.r_motorBack.setNeutralMode(ctre._ctre.NeutralMode.Coast)
         self.r_motorFront.setNeutralMode(ctre._ctre.NeutralMode.Coast)
+
+        # We were having troubles with speed controller groups and the differential drive object.
+        # code copied from last year.  Runtime errors about wrong types.  Kept in here for now,
+        # so we can work them out later (or abandon and delete).
+        # self.leftgroup = wpilib.SpeedControllerGroup(self.l_motorFront, self.l_motorBack)
+        # self.rightgroup = wpilib.SpeedControllerGroup(self.r_motorFront, self.r_motorBack)
+        # self.drive = wpilib.drive.DifferentialDrive(self.leftgroup, self.rightgroup)
+        # self.drive = wpilib.drive.DifferentialDrive(self.l_motorFront, self.r_motorFront)
+
+        # Set up joystick objects.
+        self.l_joy = wpilib.Joystick(0)
+        self.r_joy = wpilib.Joystick(1)
+
+
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
@@ -68,10 +86,17 @@ class MyRobot(wpilib.TimedRobot):
 
 
     def teleopPeriodic(self):
-        self.l_motorBack.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
-        self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
-        self.r_motorBack.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
-        self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
+        # Get joystick values once (so that we are guaranteed to send each motor the same value).
+        left_command = self.l_joy.getRawAxis(1)
+        right_command = self.r_joy.getRawAxis(1)
+
+        # This code takes the place of the speed controller groups and drive object until
+        # we can figure them out.
+        self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, left_command)
+        self.l_motorBack.set(ctre._ctre.ControlMode.PercentOutput, left_command)
+        self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, right_command)
+        self.r_motorBack.set(ctre._ctre.ControlMode.PercentOutput, right_command)
+
         # #This has the color sensor collect color values
         # color = self.colorSensor.getColor()
         # #defines colorstring
