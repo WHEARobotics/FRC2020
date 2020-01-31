@@ -5,9 +5,9 @@
 
 import wpilib
 import ctre
-#import wpilib.drive
-#from rev.color import ColorSensorV3
-#from rev.color import ColorMatch
+import wpilib.drive
+from rev.color import ColorSensorV3
+from rev.color import ColorMatch
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -18,24 +18,24 @@ class MyRobot(wpilib.TimedRobot):
         should be used for any initialization code.
         """
 
-        # #This configures the color sensor
-        # self.colorSensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
-        # #This defines the color matching prosses
-        # self.colormatcher = ColorMatch()
-        # #This defines the how confident in the chosen color the matcher must be
-        # self.colormatcher.setConfidenceThreshold(0.95)
-        #
-        # #These define each color by its RGB values
-        # self.BlueTarget = wpilib.Color(0.143, 0.427, 0.429)
-        # self.GreenTarget = wpilib.Color(0.197, 0.561, 0.240)
-        # self.RedTarget = wpilib.Color(0.561, 0.232, 0.114)
-        # self.YellowTarget = wpilib.Color(0.361, 0.524, 0.113)
-        #
-        # #This adds our target values to colormatcher
-        # self.colormatcher.addColorMatch(self.BlueTarget)
-        # self.colormatcher.addColorMatch(self.GreenTarget)
-        # self.colormatcher.addColorMatch(self.RedTarget)
-        # self.colormatcher.addColorMatch(self.YellowTarget)
+        #This configures the color sensor
+        self.colorSensor = ColorSensorV3(wpilib.I2C.Port.kOnboard)
+        #This defines the color matching prosses
+        self.colormatcher = ColorMatch()
+        #This defines the how confident in the chosen color the matcher must be
+        self.colormatcher.setConfidenceThreshold(0.95)
+
+        #These define each color by its RGB values
+        self.BlueTarget = wpilib.Color(0.143, 0.427, 0.429)
+        self.GreenTarget = wpilib.Color(0.197, 0.561, 0.240)
+        self.RedTarget = wpilib.Color(0.561, 0.232, 0.114)
+        self.YellowTarget = wpilib.Color(0.361, 0.524, 0.113)
+
+        #This adds our target values to colormatcher
+        self.colormatcher.addColorMatch(self.BlueTarget)
+        self.colormatcher.addColorMatch(self.GreenTarget)
+        self.colormatcher.addColorMatch(self.RedTarget)
+        self.colormatcher.addColorMatch(self.YellowTarget)
 
         self.temp = 1
 
@@ -51,6 +51,12 @@ class MyRobot(wpilib.TimedRobot):
 
         self.r_motorFront = ctre.TalonFX(4)
         self.r_motorFront.setInverted(False)
+
+        self.l_Man2 = ctre.TalonSRX(5)
+        self.r_Man2 = ctre.TalonSRX(6)
+
+
+
 
         # At the moment, we think we want to coast.
         self.l_motorBack.setNeutralMode(ctre._ctre.NeutralMode.Coast)
@@ -72,6 +78,8 @@ class MyRobot(wpilib.TimedRobot):
 
 
 
+
+
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
         pass
@@ -90,6 +98,7 @@ class MyRobot(wpilib.TimedRobot):
         left_command = self.l_joy.getRawAxis(1)
         right_command = self.r_joy.getRawAxis(1)
 
+
         # This code takes the place of the speed controller groups and drive object until
         # we can figure them out.
         self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, left_command)
@@ -98,36 +107,74 @@ class MyRobot(wpilib.TimedRobot):
         self.r_motorBack.set(ctre._ctre.ControlMode.PercentOutput, right_command)
 
         # #This has the color sensor collect color values
-        # color = self.colorSensor.getColor()
-        # #defines colorstring
-        # colorstring = 'Unknown'
-        # #resets confidence
-        # confidence = 0.95
-        # #uses confidence factor to determine closest color values
-        # matchedcolor = self.colormatcher.matchClosestColor(color, confidence)
-        #
-        # #uses estimated color values to return exact preset colors for printing
-        # if matchedcolor.red == self.BlueTarget.red and matchedcolor.green == self.BlueTarget.green and matchedcolor.blue == self.BlueTarget.blue:
-        #     colorstring = 'blue'
-        #
-        # elif matchedcolor.red == self.RedTarget.red and matchedcolor.green == self.RedTarget.green and matchedcolor.blue == self.RedTarget.blue:
-        #     colorstring = 'red'
-        #
-        # elif matchedcolor.red == self.GreenTarget.red and matchedcolor.green == self.GreenTarget.green and matchedcolor.blue == self.GreenTarget.blue:
-        #     colorstring = 'green'
-        # elif matchedcolor.red == self.YellowTarget.red and matchedcolor.green == self.YellowTarget.green and matchedcolor.blue == self.YellowTarget.blue:
-        #     colorstring = 'yellow'
-        #
-        # #defines color values
-        # red = color.red
-        # blue = color.blue
-        # green = color.green
+        color = self.colorSensor.getColor()
+        GameData = str(wpilib.DriverStation.getInstance().getGameSpecificMessage())
+        #defines colorstring
+        colorstring = 'Unknown'
+        #resets confidence
+        confidence = 0.95
+        #uses confidence factor to determine closest color values
+        matchedcolor = self.colormatcher.matchClosestColor(color, confidence)
+
+        #uses estimated color values to return exact preset colors for printing
+        if matchedcolor.red == self.BlueTarget.red and matchedcolor.green == self.BlueTarget.green and matchedcolor.blue == self.BlueTarget.blue:
+            colorstring = 'blue'
+
+        elif matchedcolor.red == self.RedTarget.red and matchedcolor.green == self.RedTarget.green and matchedcolor.blue == self.RedTarget.blue:
+            colorstring = 'red'
+
+        elif matchedcolor.red == self.GreenTarget.red and matchedcolor.green == self.GreenTarget.green and matchedcolor.blue == self.GreenTarget.blue:
+            colorstring = 'green'
+
+        elif matchedcolor.red == self.YellowTarget.red and matchedcolor.green == self.YellowTarget.green and matchedcolor.blue == self.YellowTarget.blue:
+            colorstring = 'yellow'
+
+        #defines color values
+        red = color.red
+        blue = color.blue
+        green = color.green
 
         #keeps pace and prints results
         self.temp += 1
         if self.temp % 49 == 0:
-#            print ('{:5.3f} {:5.3f} {:5.3f} {} {} {:5.3f} {:5.3f} {:5.3f}'.format(color.red, color.green, color.blue, colorstring, confidence, matchedcolor.red, matchedcolor.green, matchedcolor.blue))
+            print ('{:5.3f} {:5.3f} {:5.3f} {} {} {:5.3f} {:5.3f} {:5.3f} {}'.format(color.red, color.green, color.blue, colorstring, confidence, matchedcolor.red, matchedcolor.green, matchedcolor.blue, GameData))
             print(self.temp)
+"""
+        if self.r_joy.getrawbuttonpressed(1):
+
+            if GameData == ('B'):
+                if colorstring == ('blue'):
+                    self.r_Man2.set(0)
+                    self.l_Man2.set(0)
+                else:
+                    self.r_Man2.set(0.3)
+                    self.l_Man2.set(0.3)
+            elif GameData == ('R'):
+                if colorstring == ('red'):
+                    self.r_Man2.set(0)
+                    self.l_Man2.set(0)
+                else:
+                    self.r_Man2.set(0.3)
+                    self.l_Man2.set(0.3)
+            elif GameData == ('G'):
+                if colorstring == ('green'):
+                    self.r_Man2.set(0)
+                    self.l_Man2.set(0)
+                else:
+                    self.r_Man2.set(0.3)
+                    self.l_Man2.set(0.3)
+            elif GameData == ('Y'):
+                if colorstring == ('yellow'):
+                    self.r_Man2.set(0)
+                    self.l_Man2.set(0)
+                else:
+                    self.r_Man2.set(0.3)
+                    self.l_Man2.set(0.3)
+
+"""
+
+
+
 
 
 
