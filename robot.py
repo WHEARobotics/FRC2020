@@ -24,18 +24,31 @@ class MyRobot(wpilib.TimedRobot):
         self.colormatcher = ColorMatch()
         #This defines the how confident in the chosen color the matcher must be
         self.colormatcher.setConfidenceThreshold(0.95)
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
         #These define each color by its RGB values
         self.BlueTarget = wpilib.Color(0.143, 0.427, 0.429)
         self.GreenTarget = wpilib.Color(0.197, 0.561, 0.240)
         self.RedTarget = wpilib.Color(0.561, 0.232, 0.114)
         self.YellowTarget = wpilib.Color(0.361, 0.524, 0.113)
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
         #This adds our target values to colormatcher
         self.colormatcher.addColorMatch(self.BlueTarget)
         self.colormatcher.addColorMatch(self.GreenTarget)
         self.colormatcher.addColorMatch(self.RedTarget)
         self.colormatcher.addColorMatch(self.YellowTarget)
+<<<<<<< Updated upstream
+=======
+
+        ColorWheel = ''
+>>>>>>> Stashed changes
 
         self.temp = 1
 
@@ -76,6 +89,8 @@ class MyRobot(wpilib.TimedRobot):
         self.l_joy = wpilib.Joystick(0)
         self.r_joy = wpilib.Joystick(1)
 
+        
+
 
 
 
@@ -94,6 +109,12 @@ class MyRobot(wpilib.TimedRobot):
 
 
     def teleopPeriodic(self):
+        
+        ColorWheel = getGameSpecificMessage()
+
+        
+
+        
         # Get joystick values once (so that we are guaranteed to send each motor the same value).
         left_command = self.l_joy.getRawAxis(1)
         right_command = self.r_joy.getRawAxis(1)
@@ -106,15 +127,21 @@ class MyRobot(wpilib.TimedRobot):
         self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, right_command)
         self.r_motorBack.set(ctre._ctre.ControlMode.PercentOutput, right_command)
 
+<<<<<<< Updated upstream
         # #This has the color sensor collect color values
         color = self.colorSensor.getColor()
         GameData = str(wpilib.DriverStation.getInstance().getGameSpecificMessage())
+=======
+        #This has the color sensor collect color values
+        color = self.colorSensor.getColor()
+>>>>>>> Stashed changes
         #defines colorstring
         colorstring = 'Unknown'
         #resets confidence
         confidence = 0.95
         #uses confidence factor to determine closest color values
         matchedcolor = self.colormatcher.matchClosestColor(color, confidence)
+<<<<<<< Updated upstream
 
         #uses estimated color values to return exact preset colors for printing
         if matchedcolor.red == self.BlueTarget.red and matchedcolor.green == self.BlueTarget.green and matchedcolor.blue == self.BlueTarget.blue:
@@ -129,6 +156,22 @@ class MyRobot(wpilib.TimedRobot):
         elif matchedcolor.red == self.YellowTarget.red and matchedcolor.green == self.YellowTarget.green and matchedcolor.blue == self.YellowTarget.blue:
             colorstring = 'yellow'
 
+=======
+        
+        #uses estimated color values to return exact preset colors for printing
+        if matchedcolor.red == self.BlueTarget.red and matchedcolor.green == self.BlueTarget.green and matchedcolor.blue == self.BlueTarget.blue:
+            colorstring = 'blue'
+        
+        elif matchedcolor.red == self.RedTarget.red and matchedcolor.green == self.RedTarget.green and matchedcolor.blue == self.RedTarget.blue:
+            colorstring = 'red'
+        
+        elif matchedcolor.red == self.GreenTarget.red and matchedcolor.green == self.GreenTarget.green and matchedcolor.blue == self.GreenTarget.blue:
+            colorstring = 'green'
+        elif matchedcolor.red == self.YellowTarget.red and matchedcolor.green == self.YellowTarget.green and matchedcolor.blue == self.YellowTarget.blue:
+            colorstring = 'yellow'
+            
+        
+>>>>>>> Stashed changes
         #defines color values
         red = color.red
         blue = color.blue
@@ -136,8 +179,14 @@ class MyRobot(wpilib.TimedRobot):
 
         #keeps pace and prints results
         self.temp += 1
+<<<<<<< Updated upstream
         if self.temp % 25 == 0:
             print ('{:5.3f} {:5.3f} {:5.3f} {} {} {:5.3f} {:5.3f} {:5.3f} {}'.format(color.red, color.green, color.blue, colorstring, confidence, matchedcolor.red, matchedcolor.green, matchedcolor.blue, GameData))
+=======
+        if self.temp % 49 == 0:
+            
+            print ('{:5.3f} {:5.3f} {:5.3f} {} {} {:5.3f} {:5.3f} {:5.3f}'.format(color.red, color.green, color.blue, colorstring, confidence, matchedcolor.red, matchedcolor.green, matchedcolor.blue))
+>>>>>>> Stashed changes
             print(self.temp)
 
         if self.r_joy.getRawButtonPressed(1):
