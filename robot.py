@@ -179,6 +179,30 @@ class MyRobot(wpilib.TimedRobot):
                     #self.l_Man2.set(0.3)
                     print('Man2 moving')
 
+        self.state = 0
+        self.color1 = colorstring
+        self.count = 0
+
+        if self.l_joy.getRawButtonPressed(1):
+
+            if colorstring == self.color1:
+                self.r_Man2.set(0.3)
+                self.l_Man2.set(0.3)
+            else 
+
+            if self.color1 == ('blue'):
+                if self.color1 == ('blue'):
+                    self.r_Man2.set(0.3)
+                    self.l_Man2.set(0.3)
+                else:
+                    if self.color1 != ('blue'):
+                        self.r_Man2.set(0.3)
+                        self.l_Man2.set(0.3)
+                    else:
+                        if self.color1 == ('blue'):
+
+
+
 
 
 
