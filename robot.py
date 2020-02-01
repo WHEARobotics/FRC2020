@@ -136,42 +136,50 @@ class MyRobot(wpilib.TimedRobot):
 
         #keeps pace and prints results
         self.temp += 1
-        if self.temp % 49 == 0:
+        if self.temp % 25 == 0:
             print ('{:5.3f} {:5.3f} {:5.3f} {} {} {:5.3f} {:5.3f} {:5.3f} {}'.format(color.red, color.green, color.blue, colorstring, confidence, matchedcolor.red, matchedcolor.green, matchedcolor.blue, GameData))
             print(self.temp)
-"""
-        if self.r_joy.getrawbuttonpressed(1):
+
+        if self.r_joy.getRawButtonPressed(1):
 
             if GameData == ('B'):
                 if colorstring == ('blue'):
-                    self.r_Man2.set(0)
-                    self.l_Man2.set(0)
+                    #self.r_Man2.set(0)
+                    #self.l_Man2.set(0)
+                    print('Man2 still')
                 else:
-                    self.r_Man2.set(0.3)
-                    self.l_Man2.set(0.3)
+                    #self.r_Man2.set(0.3)
+                    #self.l_Man2.set(0.3)
+                    print('Man2 moving')
             elif GameData == ('R'):
                 if colorstring == ('red'):
-                    self.r_Man2.set(0)
-                    self.l_Man2.set(0)
+                    #self.r_Man2.set(0)
+                    #self.l_Man2.set(0)
+                    print('Man2 still')
                 else:
-                    self.r_Man2.set(0.3)
-                    self.l_Man2.set(0.3)
+                    #self.r_Man2.set(0.3)
+                    #self.l_Man2.set(0.3)
+                    print('Man2 moving')
             elif GameData == ('G'):
                 if colorstring == ('green'):
-                    self.r_Man2.set(0)
-                    self.l_Man2.set(0)
+                    #self.r_Man2.set(0)
+                    #self.l_Man2.set(0)
+                    print('Man2 still')
                 else:
-                    self.r_Man2.set(0.3)
-                    self.l_Man2.set(0.3)
+                    #self.r_Man2.set(0.3)
+                    #self.l_Man2.set(0.3)
+                    print('Man2 moving')
             elif GameData == ('Y'):
                 if colorstring == ('yellow'):
-                    self.r_Man2.set(0)
-                    self.l_Man2.set(0)
+                    #self.r_Man2.set(0)
+                    #self.l_Man2.set(0)
+                    print('Man2 still')
                 else:
-                    self.r_Man2.set(0.3)
-                    self.l_Man2.set(0.3)
+                    #self.r_Man2.set(0.3)
+                    #self.l_Man2.set(0.3)
+                    print('Man2 moving')
 
-"""
+
 
 
 
