@@ -185,21 +185,21 @@ class MyRobot(wpilib.TimedRobot):
 
         if self.l_joy.getRawButtonPressed(1):
 
-            if colorstring == self.color1:
+            if self.count == 8:
+                self.r_Man2.set(0)
+                self.l_Man2.set(0)
+
+            elif colorstring == self.color1:
                 self.r_Man2.set(0.3)
                 self.l_Man2.set(0.3)
-            else 
-
-            if self.color1 == ('blue'):
-                if self.color1 == ('blue'):
+            else:
+                self.count =+ 1
+                if colorstring != self.color1:
                     self.r_Man2.set(0.3)
                     self.l_Man2.set(0.3)
                 else:
-                    if self.color1 != ('blue'):
-                        self.r_Man2.set(0.3)
-                        self.l_Man2.set(0.3)
-                    else:
-                        if self.color1 == ('blue'):
+                    self.count =+1
+
 
 
 
