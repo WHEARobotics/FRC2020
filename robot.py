@@ -193,6 +193,7 @@ class MyRobot(wpilib.TimedRobot):
                 self.r_Man2.set(0.3)
                 self.l_Man2.set(0.3)
             else:
+<<<<<<< Updated upstream
                 self.count =+ 1
                 if colorstring != self.color1:
                     self.r_Man2.set(0.3)
@@ -200,6 +201,21 @@ class MyRobot(wpilib.TimedRobot):
                 else:
                     self.count =+1
 
+=======
+                pass
+
+            if self.color1 == ('blue'):
+                if self.color1 == ('blue'):
+                    self.r_Man2.set(0.3)
+                    self.l_Man2.set(0.3)
+                else:
+                    if self.color1 != ('blue'):
+                        self.r_Man2.set(0.3)
+                        self.l_Man2.set(0.3)
+                    else:
+                        if self.color1 == ('blue'):
+                            pass
+>>>>>>> Stashed changes
 
 
 
