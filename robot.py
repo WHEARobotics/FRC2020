@@ -37,6 +37,8 @@ class MyRobot(wpilib.TimedRobot):
         self.colormatcher.addColorMatch(self.RedTarget)
         self.colormatcher.addColorMatch(self.YellowTarget)
 
+        self.man2_state = 'Before'
+
         self.temp = 1
 
         # Set up drive train motor controllers, Falcon 500 using TalonFX.
@@ -52,9 +54,11 @@ class MyRobot(wpilib.TimedRobot):
         self.r_motorFront = ctre.TalonFX(4)
         self.r_motorFront.setInverted(False)
 
-        self.l_Man2 = ctre.TalonSRX(5)
-        self.r_Man2 = ctre.TalonSRX(6)
+        self.r_man2 = ctre.TalonSRX(5)
+        self.l_man2 = ctre.TalonSRX(6)
 
+        self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+        self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
 
 
@@ -106,6 +110,7 @@ class MyRobot(wpilib.TimedRobot):
         self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, right_command)
         self.r_motorBack.set(ctre._ctre.ControlMode.PercentOutput, right_command)
 
+
         # #This has the color sensor collect color values
         color = self.colorSensor.getColor()
         GameData = str(wpilib.DriverStation.getInstance().getGameSpecificMessage())
@@ -116,18 +121,20 @@ class MyRobot(wpilib.TimedRobot):
         #uses confidence factor to determine closest color values
         matchedcolor = self.colormatcher.matchClosestColor(color, confidence)
 
+
+
         #uses estimated color values to return exact preset colors for printing
         if matchedcolor.red == self.BlueTarget.red and matchedcolor.green == self.BlueTarget.green and matchedcolor.blue == self.BlueTarget.blue:
-            colorstring = 'blue'
+            colorstring = 'B'
 
         elif matchedcolor.red == self.RedTarget.red and matchedcolor.green == self.RedTarget.green and matchedcolor.blue == self.RedTarget.blue:
-            colorstring = 'red'
+            colorstring = 'R'
 
         elif matchedcolor.red == self.GreenTarget.red and matchedcolor.green == self.GreenTarget.green and matchedcolor.blue == self.GreenTarget.blue:
-            colorstring = 'green'
+            colorstring = 'G'
 
         elif matchedcolor.red == self.YellowTarget.red and matchedcolor.green == self.YellowTarget.green and matchedcolor.blue == self.YellowTarget.blue:
-            colorstring = 'yellow'
+            colorstring = 'Y'
 
         #defines color values
         red = color.red
@@ -140,46 +147,77 @@ class MyRobot(wpilib.TimedRobot):
             print ('{:5.3f} {:5.3f} {:5.3f} {} {} {:5.3f} {:5.3f} {:5.3f} {}'.format(color.red, color.green, color.blue, colorstring, confidence, matchedcolor.red, matchedcolor.green, matchedcolor.blue, GameData))
             print(self.temp)
 
-        if self.r_joy.getRawButtonPressed(1):
+        if self.man2_state == 'Before':
+            self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+            self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+            if self.r_joy.getRawButton(1):
+                self.man2_state = 'Searching'
 
-            if GameData == ('B'):
-                if colorstring == ('blue'):
-                    #self.r_Man2.set(0)
-                    #self.l_Man2.set(0)
-                    print('Man2 still')
-                else:
-                    #self.r_Man2.set(0.3)
-                    #self.l_Man2.set(0.3)
-                    print('Man2 moving')
-            elif GameData == ('R'):
-                if colorstring == ('red'):
-                    #self.r_Man2.set(0)
-                    #self.l_Man2.set(0)
-                    print('Man2 still')
-                else:
-                    #self.r_Man2.set(0.3)
-                    #self.l_Man2.set(0.3)
-                    print('Man2 moving')
-            elif GameData == ('G'):
-                if colorstring == ('green'):
-                    #self.r_Man2.set(0)
-                    #self.l_Man2.set(0)
-                    print('Man2 still')
-                else:
-                    #self.r_Man2.set(0.3)
-                    #self.l_Man2.set(0.3)
-                    print('Man2 moving')
-            elif GameData == ('Y'):
-                if colorstring == ('yellow'):
-                    #self.r_Man2.set(0)
-                    #self.l_Man2.set(0)
-                    print('Man2 still')
-                else:
-                    #self.r_Man2.set(0.3)
-                    #self.l_Man2.set(0.3)
-                    print('Man2 moving')
+        elif self.man2_state == 'Searching':
+            if colorstring == GameData:
+                self.man2_state = 'AtGoal'
 
-        self.state = 0
+            else:
+                self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.1)
+                self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.1)
+
+        elif self.man2_state == "AtGoal":
+            self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+            self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+
+            if self.r_joy.getRawButton(1):
+                self.man2_state = 'Searching'
+        else:
+            self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+            self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+
+            if self.r_joy.getRawButton(1):   
+                self.man2_state = 'Searching'
+#         else:
+#             if self.r_joy.getRawButton(1):
+#
+#                 if GameData == ('B'):
+#                     if colorstring == ('blue'):
+#                         self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+#                         self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+#                         print('Man2 still')
+#                         self.man2_state = 'AtGoal'
+#
+#
+#                     else:
+#                         self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
+#                         self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
+#                         self.man2_state = 'moving'
+#             elif GameData == ('R'):
+#                 if colorstring == ('red'):
+#                     self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+#                     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+#                     print('Man2 still')
+#                 else:
+#                     self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
+#                     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
+#                     print('Man2 moving')
+#             elif GameData == ('G'):
+#                 if colorstring == ('green'):
+#                     self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+#                     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+#                     print('Man2 still')
+#                 else:
+#                     self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
+#                     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
+#                     print('Man2 moving')
+#             elif GameData == ('Y'):
+#                 if colorstring == ('yellow'):
+#                     self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+#                     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+#                     print('Man2 still')
+#                 else:
+#                     self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
+#                     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
+#                     print('Man2 moving')
+#
+"""
+        
         self.color1 = colorstring
         self.count = 0
 
@@ -193,30 +231,14 @@ class MyRobot(wpilib.TimedRobot):
                 self.r_Man2.set(0.3)
                 self.l_Man2.set(0.3)
             else:
-<<<<<<< Updated upstream
                 self.count =+ 1
                 if colorstring != self.color1:
                     self.r_Man2.set(0.3)
                     self.l_Man2.set(0.3)
                 else:
-                    self.count =+1
+                    pass
 
-=======
-                pass
-
-            if self.color1 == ('blue'):
-                if self.color1 == ('blue'):
-                    self.r_Man2.set(0.3)
-                    self.l_Man2.set(0.3)
-                else:
-                    if self.color1 != ('blue'):
-                        self.r_Man2.set(0.3)
-                        self.l_Man2.set(0.3)
-                    else:
-                        if self.color1 == ('blue'):
-                            pass
->>>>>>> Stashed changes
-
+"""
 
 
 
