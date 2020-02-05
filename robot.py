@@ -38,6 +38,9 @@ class MyRobot(wpilib.TimedRobot):
         self.colormatcher.addColorMatch(self.YellowTarget)
 
         self.man2_state = 'Before'
+        self.time = 0
+        self.count = 0
+        self.color1 = 'Unknown'
 
         self.temp = 1
 
@@ -154,7 +157,9 @@ class MyRobot(wpilib.TimedRobot):
                 self.man2_state = 'Searching'
 
         elif self.man2_state == 'Searching':
-            if colorstring == GameData:
+            if self.r_joy.getRawButtonReleased(1):
+                self.man2_state = 'Before'
+            elif colorstring == GameData:
                 self.man2_state = 'AtGoal'
 
             else:
@@ -173,72 +178,38 @@ class MyRobot(wpilib.TimedRobot):
 
             if self.r_joy.getRawButton(1):   
                 self.man2_state = 'Searching'
-#         else:
-#             if self.r_joy.getRawButton(1):
-#
-#                 if GameData == ('B'):
-#                     if colorstring == ('blue'):
-#                         self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-#                         self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-#                         print('Man2 still')
-#                         self.man2_state = 'AtGoal'
-#
-#
-#                     else:
-#                         self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
-#                         self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
-#                         self.man2_state = 'moving'
-#             elif GameData == ('R'):
-#                 if colorstring == ('red'):
-#                     self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-#                     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-#                     print('Man2 still')
-#                 else:
-#                     self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
-#                     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
-#                     print('Man2 moving')
-#             elif GameData == ('G'):
-#                 if colorstring == ('green'):
-#                     self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-#                     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-#                     print('Man2 still')
-#                 else:
-#                     self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
-#                     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
-#                     print('Man2 moving')
-#             elif GameData == ('Y'):
-#                 if colorstring == ('yellow'):
-#                     self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-#                     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-#                     print('Man2 still')
-#                 else:
-#                     self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
-#                     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.3)
-#                     print('Man2 moving')
-#
-"""
-        
-        self.color1 = colorstring
-        self.count = 0
 
-        if self.l_joy.getRawButtonPressed(1):
 
-            if self.count == 8:
-                self.r_Man2.set(0)
-                self.l_Man2.set(0)
 
-            elif colorstring == self.color1:
-                self.r_Man2.set(0.3)
-                self.l_Man2.set(0.3)
-            else:
-                self.count =+ 1
-                if colorstring != self.color1:
-                    self.r_Man2.set(0.3)
-                    self.l_Man2.set(0.3)
-                else:
-                    pass
 
-"""
+
+        if self.count == (8):
+             self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+
+             self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+
+
+        # elif self.l_joy.getRawButton(1):
+            
+        #     self.color1 = colorstring
+        #
+        #     if colorstring == self.color1:
+        #         self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.1)
+        #         self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.1)
+        #         print (self.count)
+        #     else:
+        #
+        #         if colorstring != self.color1:
+        #             self.count = self.count + 1
+        #             self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.1)
+        #             self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.1)
+        #             print (self.count)
+        #         else:
+        #             pass
+        # elif self.l_joy.getRawButtonReleased(1):
+        #     self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.1)
+        #     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.1)
+        #     self.count = 0
 
 
 
