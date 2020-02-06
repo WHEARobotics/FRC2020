@@ -57,11 +57,16 @@ class MyRobot(wpilib.TimedRobot):
         self.r_motorFront = ctre.TalonFX(4)
         self.r_motorFront.setInverted(False)
 
+        self.r_man1= ctre.TalonFX (7)
+
         self.r_man2 = ctre.TalonSRX(5)
         self.l_man2 = ctre.TalonSRX(6)
 
         self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
         self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+
+        self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+
 
 
 
@@ -113,6 +118,10 @@ class MyRobot(wpilib.TimedRobot):
         self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, right_command)
         self.r_motorBack.set(ctre._ctre.ControlMode.PercentOutput, right_command)
 
+        if self.r_joy.getRawButtonPressed(2):
+            self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+        elif self.r_joy.getRawButtonReleased(2):
+            self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
         # #This has the color sensor collect color values
         color = self.colorSensor.getColor()
