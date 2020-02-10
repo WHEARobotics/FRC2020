@@ -57,17 +57,36 @@ class MyRobot(wpilib.TimedRobot):
         self.r_motorFront = ctre.TalonFX(4)
         self.r_motorFront.setInverted(False)
 
-        self.r_man1= ctre.TalonFX (7)
 
+        ### Rod's suggestion: rename "self.r_man1" to something that will be more
+        ### descriptive in the long term, when you have forgotten that "man1" was the
+        ### first manipulator, the one for the control panel.  And "l" and "r" don't really
+        ### make sense for the launcher/kicker/elevator.  I do like the comments "launcher" and
+        ### "kicker".
+        ### Hint: to rename a variable everywhere with Pycharm, you can select the variable,
+        ### then use the menu item Refactor > Rename to rename it.
+
+        #launcher
+        self.l_man1= ctre.TalonFX(7)
+        #kicker
+        self.r_man1= ctre.TalonSRX(8)
+        
+        
+        ### Rod's suggestion: rename "self.r_man2" to something that will be more
+        ### descriptive in the long term, when you have forgotten that "man2" was the
+        ### second manipulator, the one for the control panel.  For instance: ct_spinner_left,
+        ### and include a comment describing what a "ct_spinner" is.
         self.r_man2 = ctre.TalonSRX(5)
+        self.r_man2.setInverted(True)
+
         self.l_man2 = ctre.TalonSRX(6)
+        self.l_man2.setInverted(False)
 
         self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
         self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
         self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-
-
+        self.l_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
 
         # At the moment, we think we want to coast.
@@ -75,6 +94,9 @@ class MyRobot(wpilib.TimedRobot):
         self.l_motorFront.setNeutralMode(ctre._ctre.NeutralMode.Coast)
         self.r_motorBack.setNeutralMode(ctre._ctre.NeutralMode.Coast)
         self.r_motorFront.setNeutralMode(ctre._ctre.NeutralMode.Coast)
+
+        self.l_man2.setNeutralMode(ctre._ctre.NeutralMode.Brake)
+        self.r_man2.setNeutralMode(ctre._ctre.NeutralMode.Brake)
 
         # We were having troubles with speed controller groups and the differential drive object.
         # code copied from last year.  Runtime errors about wrong types.  Kept in here for now,
@@ -88,6 +110,11 @@ class MyRobot(wpilib.TimedRobot):
         self.l_joy = wpilib.Joystick(0)
         self.r_joy = wpilib.Joystick(1)
 
+        ### Rod's suggestion: put a comment about what these are.
+        self.auto_switch0 = wpilib.DigitalInput(0)
+        self.auto_switch1 = wpilib.DigitalInput(1)
+        self.auto_switch2 = wpilib.DigitalInput(2)
+        self.auto_switch3 = wpilib.DigitalInput(3)
 
 
 
@@ -117,13 +144,24 @@ class MyRobot(wpilib.TimedRobot):
         self.l_motorBack.set(ctre._ctre.ControlMode.PercentOutput, left_command)
         self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, right_command)
         self.r_motorBack.set(ctre._ctre.ControlMode.PercentOutput, right_command)
-
-        if self.r_joy.getRawButtonPressed(2):
-            self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-        elif self.r_joy.getRawButtonReleased(2):
+        #launcher falcon
+        if self.l_joy.getRawButton(2):
+            self.l_man1.set(ctre._ctre.ControlMode.PercentOutput, 1.00)
+        elif self.l_joy.getRawButton(3):
+            self.l_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+        #kicker redline
+        if self.r_joy.getRawButton(2):
+            self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.50)
+        elif self.r_joy.getRawButton(3):
+            self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+        #elevator redline
+        if self.r_joy.getRawButton(4):
+            self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.30)
+        elif self.r_joy.getRawButton(5):
             self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
-        # #This has the color sensor collect color values
+
+        #This has the color sensor collect color value
         color = self.colorSensor.getColor()
         GameData = str(wpilib.DriverStation.getInstance().getGameSpecificMessage())
         #defines colorstring
@@ -172,8 +210,8 @@ class MyRobot(wpilib.TimedRobot):
                 self.man2_state = 'AtGoal'
 
             else:
-                self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.1)
-                self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.1)
+                self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.5)
+                self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, -0.5)
 
         elif self.man2_state == "AtGoal":
             self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
@@ -198,6 +236,8 @@ class MyRobot(wpilib.TimedRobot):
              self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
 
+
+
         # elif self.l_joy.getRawButton(1):
             
         #     self.color1 = colorstring
@@ -220,13 +260,17 @@ class MyRobot(wpilib.TimedRobot):
         #     self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.1)
         #     self.count = 0
 
-
-
-
-
-
-
-
+    def getAutoSwitch(self):
+        ret_val=0
+        if self.auto_switch0.get() == False:
+                ret_val += 1
+        if self.auto_switch1.get() == False:
+            ret_val += 2
+        if self.auto_switch2.get() == False:
+            ret_val += 4
+        if self.auto_switch3.get() == False:
+            ret_val += 8
+        return ret_val
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)
