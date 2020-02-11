@@ -25,6 +25,8 @@ class MyRobot(wpilib.TimedRobot):
         #This defines the how confident in the chosen color the matcher must be
         self.colormatcher.setConfidenceThreshold(0.95)
 
+
+
         #These define each color by its RGB values
         self.BlueTarget = wpilib.Color(0.143, 0.427, 0.429)
         self.GreenTarget = wpilib.Color(0.197, 0.561, 0.240)
@@ -67,9 +69,9 @@ class MyRobot(wpilib.TimedRobot):
         ### then use the menu item Refactor > Rename to rename it.
 
         #launcher
-        self.l_man1= ctre.TalonFX(7)
+        self.man1Shooter= ctre.TalonFX(7)
         #kicker
-        self.r_man1= ctre.TalonSRX(8)
+
         
         
         ### Rod's suggestion: rename "self.r_man2" to something that will be more
@@ -85,8 +87,8 @@ class MyRobot(wpilib.TimedRobot):
         self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
         self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
-        self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-        self.l_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+        self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+        self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
 
         # At the moment, we think we want to coast.
@@ -118,6 +120,19 @@ class MyRobot(wpilib.TimedRobot):
 
 
 
+        self.l_motorFront.configSelectedFeedbackSensor(ctre._ctre.FeedbackDevice.IntegratedSensor)
+        self.l_motorFront.setSelectedSensorPosition(0)
+
+        self.r_motorFront.configSelectedFeedbackSensor(ctre._ctre.FeedbackDevice.IntegratedSensor)
+        self.r_motorFront.setSelectedSensorPosition(0)
+
+        self.man1Shooter.configSelectedFeedbackSensor(ctre._ctre.FeedbackDevice.IntegratedSensor)
+        self.man1Shooter.setSelectedSensorPosition(0)
+
+
+
+
+
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
@@ -138,6 +153,20 @@ class MyRobot(wpilib.TimedRobot):
         right_command = self.r_joy.getRawAxis(1)
 
 
+
+
+        motorOutput = self.man1Shooter.getMotorOutputPercent()
+
+        l_encoderPos = self.l_motorFront.getSelectedSensorPosition()
+        r_encoderPos = self.r_motorFront.getSelectedSensorPosition()
+
+        man1_encoder = self.man1Shooter.getSelectedSensorVelocity()
+
+        targetVelocity = 0.75 * 500 * 4096/600
+
+
+
+
         # This code takes the place of the speed controller groups and drive object until
         # we can figure them out.
         self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, left_command)
@@ -145,20 +174,11 @@ class MyRobot(wpilib.TimedRobot):
         self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, right_command)
         self.r_motorBack.set(ctre._ctre.ControlMode.PercentOutput, right_command)
         #launcher falcon
-        if self.l_joy.getRawButton(2):
-            self.l_man1.set(ctre._ctre.ControlMode.PercentOutput, 1.00)
-        elif self.l_joy.getRawButton(3):
-            self.l_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-        #kicker redline
-        if self.r_joy.getRawButton(2):
-            self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.50)
-        elif self.r_joy.getRawButton(3):
-            self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-        #elevator redline
-        if self.r_joy.getRawButton(4):
-            self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.30)
-        elif self.r_joy.getRawButton(5):
-            self.r_man1.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+        if self.l_joy.getRawButton(1):
+            self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, targetVelocity)
+        else:
+            self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+
 
 
         #This has the color sensor collect color value
@@ -193,9 +213,7 @@ class MyRobot(wpilib.TimedRobot):
 
         #keeps pace and prints results
         self.temp += 1
-        if self.temp % 25 == 0:
-            print ('{:5.3f} {:5.3f} {:5.3f} {} {} {:5.3f} {:5.3f} {:5.3f} {}'.format(color.red, color.green, color.blue, colorstring, confidence, matchedcolor.red, matchedcolor.green, matchedcolor.blue, GameData))
-            print(self.temp)
+
 
         if self.man2_state == 'Before':
             self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
@@ -234,6 +252,7 @@ class MyRobot(wpilib.TimedRobot):
              self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
              self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+        print(man1_encoder)
 
 
 
@@ -271,6 +290,10 @@ class MyRobot(wpilib.TimedRobot):
         if self.auto_switch3.get() == False:
             ret_val += 8
         return ret_val
+
+
+
+
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)
