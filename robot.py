@@ -44,6 +44,9 @@ class MyRobot(wpilib.TimedRobot):
         self.count = 0
         self.color1 = 'Unknown'
 
+
+
+
         self.temp = 1
 
         # Set up drive train motor controllers, Falcon 500 using TalonFX.
@@ -112,11 +115,18 @@ class MyRobot(wpilib.TimedRobot):
         self.l_joy = wpilib.Joystick(0)
         self.r_joy = wpilib.Joystick(1)
 
-        ### Rod's suggestion: put a comment about what these are.
+        ### These are the setting the 4 plugs into the roboRIO for the multiple autonomous mode.
         self.auto_switch0 = wpilib.DigitalInput(0)
         self.auto_switch1 = wpilib.DigitalInput(1)
         self.auto_switch2 = wpilib.DigitalInput(2)
         self.auto_switch3 = wpilib.DigitalInput(3)
+
+        kTimeout = 30
+        kLoop = 0
+
+        self.targetVelocity = 4000
+
+        TG1 =  767.25 / self.targetVelocity
 
 
 
@@ -129,6 +139,18 @@ class MyRobot(wpilib.TimedRobot):
         self.man1Shooter.configSelectedFeedbackSensor(ctre._ctre.FeedbackDevice.IntegratedSensor)
         self.man1Shooter.setSelectedSensorPosition(0)
 
+        self.man1Shooter.configNominalOutputForward(0, kTimeout)
+        self.man1Shooter.configNominalOutputReverse(0, kTimeout)
+        self.man1Shooter.configPeakOutputForward(1, kTimeout)
+        self.man1Shooter.configPeakOutputReverse(-1, kTimeout)
+
+        self.man1Shooter.config_kF(kLoop, TG1, kTimeout)
+        self.man1Shooter.config_kP(kLoop, 0, kTimeout)
+        self.man1Shooter.config_kI(kLoop, 0, kTimeout)
+        self.man1Shooter.config_kD(kLoop, 0, kTimeout)
+
+        self.ourTimer = wpilib.Timer()
+
 
 
 
@@ -136,10 +158,64 @@ class MyRobot(wpilib.TimedRobot):
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
-        pass
+
+        self.autoMode = self.getAutoSwitch()
+        remainderDelay = self.autoMode%3
+        if remainderDelay == 0:
+            self.drivedelayseconds = 0
+        elif remainderDelay == 1:
+            self.drivedelayseconds = 2
+        else:
+            self.drivedelayseconds = 4
+
+        self.ourTimer.reset()
+        self.ourTimer.start()
+
+
+
 
     def autonomousPeriodic(self):
         """This function is called periodically during autonomous."""
+
+        if self.autoMode == 0 or self.autoMode == 1 or self.autoMode == 2:
+            self.AutoPC()
+
+        elif(self.autoMode == 3 or self.autoMode == 4 or self.autoMode == 5):
+            self.AutoPM()
+
+        elif(self.autoMode == 6 or self.autoMode == 7 or self.autoMode == 8):
+            self.AutoPF()
+
+        else:
+            self.AutoD()
+# D=Drive forward
+
+        # if self.remainderDelay == 0:
+        #     self.AutoDelay0()
+        #
+        # elif self.remainderDelay == 1:
+        #     self.AutoDelay2()
+        #
+        # elif self.remainderDelay == 2:
+        #     self.AutoDelay4()
+
+        # else:
+        #     self.AutoD()
+
+    def AutoPC(self):
+        if self.ourTimer.get() >= self.drivedelayseconds:
+#As of now we have to wait until we can measure distance
+            pass
+    def AutoPM(self):
+        if self.ourTimer.get() >= self.drivedelayseconds:
+# As of now we have to wait until we can measure distance
+            pass
+    def AutoPF(self):
+        if self.ourTimer.get() >= self.drivedelayseconds:
+# As of now we have to wait until we can measure distance
+            pass
+
+    def AutoD(self):
         pass
 
 
@@ -162,7 +238,9 @@ class MyRobot(wpilib.TimedRobot):
 
         man1_encoder = self.man1Shooter.getSelectedSensorVelocity()
 
-        targetVelocity = 0.75 * 500 * 4096/600
+
+
+
 
 
 
@@ -175,7 +253,8 @@ class MyRobot(wpilib.TimedRobot):
         self.r_motorBack.set(ctre._ctre.ControlMode.PercentOutput, right_command)
         #launcher falcon
         if self.l_joy.getRawButton(1):
-            self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, targetVelocity)
+            self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+            # self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity)
         else:
             self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
@@ -282,7 +361,7 @@ class MyRobot(wpilib.TimedRobot):
     def getAutoSwitch(self):
         ret_val=0
         if self.auto_switch0.get() == False:
-                ret_val += 1
+            ret_val += 1
         if self.auto_switch1.get() == False:
             ret_val += 2
         if self.auto_switch2.get() == False:
