@@ -73,8 +73,10 @@ class MyRobot(wpilib.TimedRobot):
 
         #launcher
         self.man1Shooter= ctre.TalonFX(7)
-        self.man1Kicker = ctre.TalonSRX(4)
-        self.man1Tread = ctre.TalonSRX(3)
+        self.man1Kicker = ctre.TalonSRX(6)
+        self.man1Kicker.setInverted(True)
+        self.man1Tread = ctre.TalonSRX(5)
+        self.man1Tread.setInverted(True)
         #kicker
 
         
@@ -83,10 +85,10 @@ class MyRobot(wpilib.TimedRobot):
         ### descriptive in the long term, when you have forgotten that "man2" was the
         ### second manipulator, the one for the control panel.  For instance: ct_spinner_left,
         ### and include a comment describing what a "ct_spinner" is.
-        self.r_man2 = ctre.TalonSRX(5)
+        self.r_man2 = ctre.TalonSRX(3)
         self.r_man2.setInverted(True)
 
-        self.l_man2 = ctre.TalonSRX(6)
+        self.l_man2 = ctre.TalonSRX(4)
         self.l_man2.setInverted(False)
 
         self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
