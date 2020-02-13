@@ -73,6 +73,8 @@ class MyRobot(wpilib.TimedRobot):
 
         #launcher
         self.man1Shooter= ctre.TalonFX(7)
+        self.man1Kicker = ctre.TalonSRX(4)
+        self.man1Tread = ctre.TalonSRX(3)
         #kicker
 
         
@@ -91,7 +93,8 @@ class MyRobot(wpilib.TimedRobot):
         self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
         self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-        self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+        self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+        self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
 
         # At the moment, we think we want to coast.
@@ -124,9 +127,9 @@ class MyRobot(wpilib.TimedRobot):
         kTimeout = 30
         kLoop = 0
 
-        self.targetVelocity = 4000
+        self.targetVelocity = 8000
 
-        TG1 =  767.25 / self.targetVelocity
+        TG1 = 767.25 / self.targetVelocity
 
 
 
@@ -145,7 +148,7 @@ class MyRobot(wpilib.TimedRobot):
         self.man1Shooter.configPeakOutputReverse(-1, kTimeout)
 
         self.man1Shooter.config_kF(kLoop, TG1, kTimeout)
-        self.man1Shooter.config_kP(kLoop, 0, kTimeout)
+        self.man1Shooter.config_kP(kLoop, 3, kTimeout)
         self.man1Shooter.config_kI(kLoop, 0, kTimeout)
         self.man1Shooter.config_kD(kLoop, 0, kTimeout)
 
@@ -252,9 +255,19 @@ class MyRobot(wpilib.TimedRobot):
         self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, right_command)
         self.r_motorBack.set(ctre._ctre.ControlMode.PercentOutput, right_command)
         #launcher falcon
+        if self.l_joy.getRawButton(3):
+            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.35)
+        else:
+            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+
+        if self.l_joy.getRawButton(2):
+            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.5)
+        else:
+            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+
         if self.l_joy.getRawButton(1):
-            self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-            # self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity)
+            # self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+            self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity)
         else:
             self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
