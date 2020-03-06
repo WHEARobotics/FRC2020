@@ -1,6 +1,6 @@
 # !/usr/bin/env python3
 """
-    WHEA Robotics 3881 code for FRC 2018.
+    WHEA Robotics 3881 code for FRC 2020.
 """
 
 import wpilib
@@ -61,6 +61,14 @@ class MyRobot(wpilib.TimedRobot):
 
         self.r_motorFront = ctre.TalonFX(4)
 
+        self.r_Climb = ctre.TalonFX(11)
+        self.l_Climb = ctre.TalonFX(12)
+
+        #self.ClimbCoder = wpilib._wpilib.Encoder(12, bool = False, encodingType
+
+        self.l_Climb.follow(self.r_Climb)
+        self.l_Climb.setInverted(ctre._ctre.InvertType.FollowMaster)
+
         self.l_motorBack.follow(self.l_motorFront)
         self.r_motorBack.follow(self.r_motorFront)
 
@@ -110,6 +118,12 @@ class MyRobot(wpilib.TimedRobot):
         self.l_man2.setNeutralMode(ctre._ctre.NeutralMode.Brake)
         self.r_man2.setNeutralMode(ctre._ctre.NeutralMode.Brake)
 
+        self.l_Climb.setNeutralMode(ctre._ctre.NeutralMode.Brake)
+        self.autoS1 = 'b'
+        self.autoS2 = 'b'
+        self.autoS3 = 'b'
+
+
         # We were having troubles with speed controller groups and the differential drive object.
         # code copied from last year.  Runtime errors about wrong types.  Kept in here for now,
         # so we can work them out later (or abandon and delete).
@@ -133,8 +147,10 @@ class MyRobot(wpilib.TimedRobot):
 
         self.l_motorFront.setSelectedSensorPosition(0)
         self.r_motorFront.setSelectedSensorPosition(0)
+        #self.ClimbCoder.setSelectedSensorPosition(0)
 
         self.targetVelocity = 11000
+        self.targetVelocity2 = 14700
 
         TG1 = 767.25 / self.targetVelocity
 
@@ -184,8 +200,12 @@ class MyRobot(wpilib.TimedRobot):
         self.ourTimer.reset()
         self.ourTimer.start()
 
-        self.l_motorFront.setSelectedSensorPosition(30001)
+        self.l_motorFront.setSelectedSensorPosition(0)
         self.r_motorFront.setSelectedSensorPosition(0)
+        self.autoS1 == 'b'
+        self.autoS2 == 'b'
+        self.autoS3 == 'b'
+        #self.ClimbCoder.setSelectedSensorPosition(0)
 
     def autonomousPeriodic(self):
         """This function is called periodically during autonomous."""
@@ -194,16 +214,25 @@ class MyRobot(wpilib.TimedRobot):
         l_encoderPos = self.l_motorFront.getSelectedSensorPosition()
         r_encoderPos = self.r_motorFront.getSelectedSensorPosition()
         man1_encoder = self.man1Shooter.getSelectedSensorVelocity()
+        #ClimbPos = self.ClimbCoder.getSelectedSensorPosition()
+        print(man1_encoder)
 
-        if l_encoderPos <= 30000:
+        if r_encoderPos <= 7500:
             self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
             self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
         else:
             self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
             self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-            self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity)
-        if l_encoderPos >= 30000:
-            self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity)
+
+        if r_encoderPos >= 7500:
+            if r_encoderPos <= 15500:
+                self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
+                self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, -0.25)
+            else:
+                self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+        if r_encoderPos >= 15500:
+            self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity2)
             #print (Time)
         else:
             self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
@@ -213,32 +242,42 @@ class MyRobot(wpilib.TimedRobot):
                     # self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
         #if 11000 <= man1_encoder and man1_encoder <= 11400:
         #    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-        if 11000 <= man1_encoder and man1_encoder <= 11400:
-            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-            time.sleep(1)
-            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-            time.sleep(0.5) 
-            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-            if 11000 <= man1_encoder and man1_encoder <= 11400:
-                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-                time.sleep(0.5)
+        if 14640 <= man1_encoder and man1_encoder <= 14650:
+            if self.autoS1 == 'b':
+                time.sleep(2)
+                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+                time.sleep(1.5)
                 self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                if 11100 <= man1_encoder and man1_encoder <= 11400:
-                    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-                    time.sleep(0.5)
+                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                time.sleep(3)
+                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                self.autoS1 = 'f'
+        if 14640 <= man1_encoder and man1_encoder <= 14650:
+            if self.autoS1 == 'f':
+                if self.autoS2 == 'b':
+                    time.sleep(1)
+                    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+                    time.sleep(1.5)
                     self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                    self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                    time.sleep(3)
+                    self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                    self.autoS2 = 'f'
+                    self.autoS1 = 'n'
+        if 14640 <= man1_encoder and man1_encoder <= 14650:
+            if self.autoS2 == 'f':
+                time.sleep(1)
+                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                time.sleep(1)
+                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+
+
 
 
         else:
             self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
             self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-
-
-        print (l_encoderPos)
-
-
-    """
 
         if self.autoMode == 0 or self.autoMode == 1 or self.autoMode == 2:
             self.AutoPC()
@@ -254,17 +293,17 @@ class MyRobot(wpilib.TimedRobot):
 
     # D=Drive forward
 
-    # if self.remainderDelay == 0:
-    #     self.AutoDelay0()
-    #
-    # elif self.remainderDelay == 1:
-    #     self.AutoDelay2()
-    #
-    # elif self.remainderDelay == 2:
-    #     self.AutoDelay4()
+    if self.remainderDelay == 0:
+        self.AutoDelay0()
 
-    # else:
-    #     self.AutoD()
+    elif self.remainderDelay == 1:
+        self.AutoDelay2()
+
+    elif self.remainderDelay == 2:
+        self.AutoDelay4()
+
+    else:
+        self.AutoD()
 
     def AutoPC(self):
         if self.ourTimer.get() >= self.drivedelayseconds:
@@ -295,10 +334,13 @@ class MyRobot(wpilib.TimedRobot):
         right_command = self.r_joy.getRawAxis(1)
 
 
+
         motorOutput = self.man1Shooter.getMotorOutputPercent()
 
         l_encoderPos = self.l_motorFront.getSelectedSensorPosition()
         r_encoderPos = self.r_motorFront.getSelectedSensorPosition()
+        #ClimbPos = self.ClimbCoder.getSelectedSensorPosition()
+        print(l_encoderPos)
 
         man1_encoder = self.man1Shooter.getSelectedSensorVelocity()
 
@@ -313,6 +355,15 @@ class MyRobot(wpilib.TimedRobot):
         # self.l_motorBack.set(ctre._ctre.ControlMode.PercentOutput, left_command)
         self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, right_command)
         # self.r_motorBack.set(ctre._ctre.ControlMode.PercentOutput, right_command)
+
+        if self.r_joy.getRawButton(3):
+            self.r_Climb.set(ctre._ctre.ControlMode.PercentOutput, -0.9)
+
+        elif self.r_joy.getRawButton(4):
+            self.r_Climb.set(ctre._ctre.ControlMode.PercentOutput, 0.9)
+        else:
+            self.r_Climb.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+            self.r_Climb.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
         # launcher falcon
         if self.l_joy.getRawButton(2):
