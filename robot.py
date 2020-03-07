@@ -123,6 +123,9 @@ class MyRobot(wpilib.TimedRobot):
         self.autoS2 = 'b'
         self.autoS3 = 'b'
 
+        self.autoStage = '1'
+
+
 
         # We were having troubles with speed controller groups and the differential drive object.
         # code copied from last year.  Runtime errors about wrong types.  Kept in here for now,
@@ -185,8 +188,8 @@ class MyRobot(wpilib.TimedRobot):
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
-        """
 
+        """
         self.autoMode = self.getAutoSwitch()
         remainderDelay = self.autoMode % 3
         if remainderDelay == 0:
@@ -202,9 +205,12 @@ class MyRobot(wpilib.TimedRobot):
 
         self.l_motorFront.setSelectedSensorPosition(0)
         self.r_motorFront.setSelectedSensorPosition(0)
-        self.autoS1 == 'b'
-        self.autoS2 == 'b'
-        self.autoS3 == 'b'
+        self.autoS1 = 'b'
+        self.autoS2 = 'b'
+        self.autoS3 = 'b'
+        self.autoStage = '1'
+        self.autoMode = self.getAutoSwitch()
+        motorState = 'off'
         #self.ClimbCoder.setSelectedSensorPosition(0)
 
     def autonomousPeriodic(self):
@@ -217,113 +223,129 @@ class MyRobot(wpilib.TimedRobot):
         #ClimbPos = self.ClimbCoder.getSelectedSensorPosition()
         print(man1_encoder)
 
-        if r_encoderPos <= 7500:
-            self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
-            self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
-        else:
-            self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-            self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+        if self.autoStage =='1':
+            if self.autoMode == 0 or self.autoMode == 1 or self.autoMode == 2:
+                self.autoStage = '2'
+            elif self.autoMode == 3 or self.autoMode == 4:
+                time.sleep(3)
+                self.autoStage = '2'
+        if self.autoStage =='2':
+            if self.autoMode == 0:
+                if r_encoderPos <= 7500:
+                    self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
+                    self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
+                else:
+                    self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                    self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                    self.autoStage = '3'
 
-        if r_encoderPos >= 7500:
-            if r_encoderPos <= 15500:
-                self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
-                self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, -0.25)
-            else:
-                self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-        if r_encoderPos >= 15500:
-            self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity2)
-            #print (Time)
-        else:
-            self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+            elif self.autoMode == 1 or self.autoMode == 3:
+                if r_encoderPos <= 7500:
+                    self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
+                    self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
+                else:
+                    self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                    self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                if r_encoderPos >= 7500:
+                    motorState = 'on'
+                    self.autoStage = '3'
+
+            elif self.autoMode == 2 or self.autoMode == 4:
+                if r_encoderPos <= 7500:
+                    self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
+                    self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
+                else:
+                    self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                    self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+
+                if r_encoderPos >= 7500:
+                    if r_encoderPos <= 15500:
+                        self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
+                        self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, -0.25)
+                    else:
+                        self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                        self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                if r_encoderPos >= 15500:
+                    motorState = 'on'
+                    self.autoStage = '3'
+                    # print (Time)
+
+
+            elif self.autoStage == '3':
+                if self.autoMode == 0:
+                    pass
+                if self.autoMode == 1 or self.autoMode == 3:
+                    self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity)
+                    if 14640 <= man1_encoder and man1_encoder <= 14650:
+
+                        if self.autoS1 == 'b':
+                            time.sleep(2)
+                            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+                            time.sleep(1.5)
+                            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                            time.sleep(3)
+                            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                            self.autoS1 = 'f'
+                    if 14640 <= man1_encoder and man1_encoder <= 14650:
+                        if self.autoS1 == 'f':
+                            if self.autoS2 == 'b':
+                                time.sleep(1)
+                                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+                                time.sleep(1.5)
+                                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                                time.sleep(3)
+                                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                                self.autoS2 = 'f'
+                                self.autoS1 = 'n'
+                    if 14640 <= man1_encoder and man1_encoder <= 14650:
+                        if self.autoS2 == 'f':
+                            time.sleep(1)
+                            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                            time.sleep(1)
+                            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+            if self.autoMode == 2 or self.autoMode == 3:
+                self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity2)
+                if 14640 <= man1_encoder and man1_encoder <= 14650:
+
+                    if self.autoS1 == 'b':
+                        time.sleep(2)
+                        self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+                        time.sleep(1.5)
+                        self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                        self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                        time.sleep(3)
+                        self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                        self.autoS1 = 'f'
+                if 14640 <= man1_encoder and man1_encoder <= 14650:
+                    if self.autoS1 == 'f':
+                        if self.autoS2 == 'b':
+                            time.sleep(1)
+                            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+                            time.sleep(1.5)
+                            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                            time.sleep(3)
+                            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                            self.autoS2 = 'f'
+                            self.autoS1 = 'n'
+                if 14640 <= man1_encoder and man1_encoder <= 14650:
+                    if self.autoS2 == 'f':
+                        time.sleep(1)
+                        self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                        self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                        time.sleep(1)
+                        self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
 
 
 
-                    # self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+        # self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
         #if 11000 <= man1_encoder and man1_encoder <= 11400:
         #    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-        if 14640 <= man1_encoder and man1_encoder <= 14650:
-            if self.autoS1 == 'b':
-                time.sleep(2)
-                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
-                time.sleep(1.5)
-                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-                time.sleep(3)
-                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                self.autoS1 = 'f'
-        if 14640 <= man1_encoder and man1_encoder <= 14650:
-            if self.autoS1 == 'f':
-                if self.autoS2 == 'b':
-                    time.sleep(1)
-                    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
-                    time.sleep(1.5)
-                    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                    self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-                    time.sleep(3)
-                    self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                    self.autoS2 = 'f'
-                    self.autoS1 = 'n'
-        if 14640 <= man1_encoder and man1_encoder <= 14650:
-            if self.autoS2 == 'f':
-                time.sleep(1)
-                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-                time.sleep(1)
-                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
 
-
-
-
-        else:
-            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-
-        if self.autoMode == 0 or self.autoMode == 1 or self.autoMode == 2:
-            self.AutoPC()
-
-        elif (self.autoMode == 3 or self.autoMode == 4 or self.autoMode == 5):
-            self.AutoPM()
-
-        elif (self.autoMode == 6 or self.autoMode == 7 or self.autoMode == 8):
-            self.AutoPF()
-
-        else:
-            self.AutoD()
-
-    # D=Drive forward
-
-    if self.remainderDelay == 0:
-        self.AutoDelay0()
-
-    elif self.remainderDelay == 1:
-        self.AutoDelay2()
-
-    elif self.remainderDelay == 2:
-        self.AutoDelay4()
-
-    else:
-        self.AutoD()
-
-    def AutoPC(self):
-        if self.ourTimer.get() >= self.drivedelayseconds:
-            # As of now we have to wait until we can measure distance
-            pass
-
-    def AutoPM(self):
-        if self.ourTimer.get() >= self.drivedelayseconds:
-            # As of now we have to wait until we can measure distance
-            pass
-
-    def AutoPF(self):
-        if self.ourTimer.get() >= self.drivedelayseconds:
-            # As of now we have to wait until we can measure distance
-            pass
-
-    def AutoD(self):
-        pass
-    """
-
+        #if self.ourTimer.hasPeriodPassed(period: seconds) → bool == True:
     def teleopInit(self):
         self.l_motorFront.setSelectedSensorPosition(0)
         self.r_motorFront.setSelectedSensorPosition(0)
@@ -463,7 +485,7 @@ class MyRobot(wpilib.TimedRobot):
 
         # keeps pace and prints results
         self.temp += 1
-        """"
+        """
         if self.r_joy.getRawButton(1):
             self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.5)
             self.l_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.5)
@@ -547,7 +569,7 @@ class MyRobot(wpilib.TimedRobot):
             self.man2_state2 = 'Before'
             self.man2_state3 = 'Before'
             print ('oopsy')
-"""
+
     def getAutoSwitch(self):
         ret_val = 0
         if self.auto_switch0.get() == False:
@@ -559,7 +581,7 @@ class MyRobot(wpilib.TimedRobot):
         if self.auto_switch3.get() == False:
             ret_val += 8
         return ret_val
-"""
+
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)
