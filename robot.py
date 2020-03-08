@@ -3,6 +3,8 @@
     WHEA Robotics 3881 code for FRC 2020.
 """
 
+#==>> Rod's comments 2020-03-07 preceeded by the wide arrow.
+
 import wpilib
 import ctre
 import wpilib.drive
@@ -48,6 +50,9 @@ class MyRobot(wpilib.TimedRobot):
         self.count = 0
         self.color1 = 'Unknown'
 
+        # ==>> We are not currently using this variable, except to increment it in teleopPeriodic().
+        # ==>> Originally, it helped slow down printing.  If we aren't going to use it, we should
+        # ==>> just delete it here and in teleopPeriodic().
         self.temp = 1
 
         # Set up drive train motor controllers, Falcon 500 using TalonFX.
@@ -61,9 +66,14 @@ class MyRobot(wpilib.TimedRobot):
 
         self.r_motorFront = ctre.TalonFX(4)
 
+        # ==>> Shouldn't these be TalonSRX?  TalonFX is for the Falcons.
+        # ==>> They are very similar, but not identical.
         self.r_Climb = ctre.TalonFX(11)
         self.l_Climb = ctre.TalonFX(12)
 
+        # ==>> See Rod's post in the #programming Slack channel on Thursday, 2020-03-05.
+        # ==>> I made some suggestions about how we might get the climber encoder working
+        # ==>> based on previous years' code.
         #self.ClimbCoder = wpilib._wpilib.Encoder(12, bool = False, encodingType
 
         self.l_Climb.follow(self.r_Climb)
@@ -118,7 +128,11 @@ class MyRobot(wpilib.TimedRobot):
         self.l_man2.setNeutralMode(ctre._ctre.NeutralMode.Brake)
         self.r_man2.setNeutralMode(ctre._ctre.NeutralMode.Brake)
 
+        # ==>> We should set the right climb to brake as well.
         self.l_Climb.setNeutralMode(ctre._ctre.NeutralMode.Brake)
+
+        # ==>> It would be really helpful to add comments that explain what these variables
+        # ==>> are for, and what their legal values are.
         self.autoS1 = 'b'
         self.autoS2 = 'b'
         self.autoS3 = 'b'
@@ -138,6 +152,8 @@ class MyRobot(wpilib.TimedRobot):
         # Set up joystick objects.
         self.l_joy = wpilib.Joystick(0)
         self.r_joy = wpilib.Joystick(1)
+
+        # ==>> We will need to uncomment the following lines in order to read the auto switch.
 
         ### These are the setting the 4 plugs into the roboRIO for the multiple autonomous mode.
         #self.auto_switch0 = wpilib.DigitalInput(0)                                                                                                                                                 6.
@@ -221,6 +237,8 @@ class MyRobot(wpilib.TimedRobot):
         r_encoderPos = self.r_motorFront.getSelectedSensorPosition()
         man1_encoder = self.man1Shooter.getSelectedSensorVelocity()
         #ClimbPos = self.ClimbCoder.getSelectedSensorPosition()
+
+        # ==>> Rod recommends changing from print statements to using the SmartDashboard.
         print(man1_encoder)
 
         if self.autoStage =='1':
@@ -229,6 +247,8 @@ class MyRobot(wpilib.TimedRobot):
             elif self.autoMode == 3 or self.autoMode == 4:
                 time.sleep(3)
                 self.autoStage = '2'
+        # ==>> I think this next line would be better as an "elif", to make it clear that
+        # ==>> you are exhaustively going through the possible values of self.autoStage.
         if self.autoStage =='2':
             if self.autoMode == 0:
                 if r_encoderPos <= 7500:
@@ -246,11 +266,21 @@ class MyRobot(wpilib.TimedRobot):
                 else:
                     self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
                     self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                # ==>> The "if" below will be true in the same case as the "else" above, with the
+                # ==>> exception of when r_encoderPos is exactly 7500.  We could put the body of
+                # ==>> the "if" into the above "else" with almost the same effect.
                 if r_encoderPos >= 7500:
                     motorState = 'on'
                     self.autoStage = '3'
 
             elif self.autoMode == 2 or self.autoMode == 4:
+                # ==>> The logic below could be simplified into the form:
+                # ==>> if r_encoderPos <= 7500:
+                # ==>>     <drive>
+                # ==>> elif r_encoderPos <= 15500:
+                # ==>>     <turn>
+                # ==>> else:
+                # ==>>     <stop and change stage>
                 if r_encoderPos <= 7500:
                     self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
                     self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
@@ -270,7 +300,17 @@ class MyRobot(wpilib.TimedRobot):
                     self.autoStage = '3'
                     # print (Time)
 
-
+            # ==>> I think that this whole block from here to my next comment
+            # ==>> needs to be unindented one step (4 spaces),
+            # ==>> so that it is at the same stage as the "if self.autoStage == '2' above
+            # ==>> (or the "elif" if you change it per the comment).  You want it to be
+            # ==>> tried when autoStage doesn't equal '1' or '2'.
+            # ==>> Also, we would be better off transitioning away from time.sleep() so that
+            # ==>> each call of autoPeriodic() can execute quickly.  But I would not suggest
+            # ==>> changing it until we get access to the robot again.
+            # ==>> Finally, man1_encoder is only obtained once at the top of the function, so
+            # ==>> after a time.sleep() the value is stale and doesn't represent the shooter
+            # ==>> speed at that moment.  At a minimum, we should get the value again.
             elif self.autoStage == '3':
                 if self.autoMode == 0:
                     pass
@@ -306,6 +346,8 @@ class MyRobot(wpilib.TimedRobot):
                             self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
                             time.sleep(1)
                             self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+                # ==>> End of block to be unindented.  That way the "if self.autoMode ==1 ..." block is the same level
+                # ==>> as the "if self.autoMode == 2..." below.
             if self.autoMode == 2 or self.autoMode == 3:
                 self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity2)
                 if 14640 <= man1_encoder and man1_encoder <= 14650:
@@ -410,6 +452,12 @@ class MyRobot(wpilib.TimedRobot):
         else:
             self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
+        # ==>> This section conflicts with the previous section.  If
+        # ==>> left button 2 is not pressed, the above will either set the kicker
+        # ==>> to zero or negative.  But below, the kicker will get set to something,
+        # ==>> and if they aren't the same, the motor will not do what you want.
+        # ==>> In general, it is best to set the motors in a single block of code
+        # ==>> that handles every possible case.
         if 11000 <= man1_encoder and man1_encoder <= 11050:
             if self.l_joy.getRawButton(1):
                 self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
@@ -448,7 +496,7 @@ class MyRobot(wpilib.TimedRobot):
         elif matchedcolor.red == self.YellowTarget.red and matchedcolor.green == self.YellowTarget.green and matchedcolor.blue == self.YellowTarget.blue:
             colorstring = 'Y'
 
-
+        # ==>> colorstring1 and colorstring2 are not used.  What are they for?
         if GameData == 'B':
             if colorstring == 'R' or 'G':
                 colorstring1 = 'None'
@@ -478,11 +526,13 @@ class MyRobot(wpilib.TimedRobot):
                 colorstring1 = 'B'
                 colorstring2 = 'G'
 
+        # ==>> These 3 values are not used, so we could delete these 4 lines.
         # defines color values
         red = color.red
         blue = color.blue
         green = color.green
 
+        # ==>> As noted above, if we aren't using it, we should delete it.
         # keeps pace and prints results
         self.temp += 1
         """
