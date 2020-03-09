@@ -386,6 +386,96 @@ class MyRobot(wpilib.TimedRobot):
         # self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
         #if 11000 <= man1_encoder and man1_encoder <= 11400:
         #    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+<<<<<<< Updated upstream
+=======
+        if 14640 <= man1_encoder and man1_encoder <= 14650:
+            if self.autoS1 == 'b':
+                time.sleep(2)
+                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+                time.sleep(1.5)
+                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                time.sleep(3)
+                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                self.autoS1 = 'f'
+        if 14640 <= man1_encoder and man1_encoder <= 14650:
+            if self.autoS1 == 'f':
+                if self.autoS2 == 'b':
+                    time.sleep(1)
+                    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+                    time.sleep(1.5)
+                    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                    self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                    time.sleep(3)
+                    self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                    self.autoS2 = 'f'
+                    self.autoS1 = 'n'
+        if 14640 <= man1_encoder and man1_encoder <= 14650:
+            if self.autoS2 == 'f':
+                time.sleep(1)
+                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                time.sleep(1)
+                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+
+
+
+
+        else:
+            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+
+
+
+
+
+
+
+        if self.autoMode == 0 or self.autoMode == 1 or self.autoMode == 2:
+            self.AutoPC()
+
+        elif (self.autoMode == 3 or self.autoMode == 4 or self.autoMode == 5):
+            self.AutoPM()
+
+        elif (self.autoMode == 6 or self.autoMode == 7 or self.autoMode == 8):
+            self.AutoPF()
+
+        else:
+            self.AutoD()
+
+    # D=Drive forward
+    """
+    if self.remainderDelay == 0:
+        self.AutoDelay0()
+
+    elif self.remainderDelay == 1:
+        self.AutoDelay2()
+
+    elif self.remainderDelay == 2:
+        self.AutoDelay4()
+
+    else:
+        self.AutoD()
+
+    def AutoPC(self):
+        if self.ourTimer.get() >= self.drivedelayseconds:
+            # As of now we have to wait until we can measure distance
+            pass
+
+    def AutoPM(self):
+        if self.ourTimer.get() >= self.drivedelayseconds:
+            # As of now we have to wait until we can measure distance
+            pass
+
+    def AutoPF(self):
+        if self.ourTimer.get() >= self.drivedelayseconds:
+            # As of now we have to wait until we can measure distance
+            pass
+
+    def AutoD(self):
+        pass
+    """
+>>>>>>> Stashed changes
 
         #if self.ourTimer.hasPeriodPassed(period: seconds) → bool == True:
     def teleopInit(self):
