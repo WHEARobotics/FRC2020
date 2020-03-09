@@ -53,7 +53,7 @@ class MyRobot(wpilib.TimedRobot):
         # ==>> We are not currently using this variable, except to increment it in teleopPeriodic().
         # ==>> Originally, it helped slow down printing.  If we aren't going to use it, we should
         # ==>> just delete it here and in teleopPeriodic().
-        self.temp = 1
+
 
         # Set up drive train motor controllers, Falcon 500 using TalonFX.
         self.l_motorBack = ctre.TalonFX(1)
@@ -68,8 +68,8 @@ class MyRobot(wpilib.TimedRobot):
 
         # ==>> Shouldn't these be TalonSRX?  TalonFX is for the Falcons.
         # ==>> They are very similar, but not identical.
-        self.r_Climb = ctre.TalonFX(11)
-        self.l_Climb = ctre.TalonFX(12)
+        self.r_Climb = ctre.TalonSRX(11)
+        self.l_Climb = ctre.TalonSRX(12)
 
         # ==>> See Rod's post in the #programming Slack channel on Thursday, 2020-03-05.
         # ==>> I made some suggestions about how we might get the climber encoder working
@@ -92,6 +92,8 @@ class MyRobot(wpilib.TimedRobot):
         ### "kicker".
         ### Hint: to rename a variable everywhere with Pycharm, you can select the variable,
         ### then use the menu item Refactor > Rename to rename it.
+
+        #Teo: That command didnt work for me... maybe I was using it wrong?
 
         # launcher
         self.man1Shooter = ctre.TalonFX(7)
@@ -130,13 +132,17 @@ class MyRobot(wpilib.TimedRobot):
 
         # ==>> We should set the right climb to brake as well.
         self.l_Climb.setNeutralMode(ctre._ctre.NeutralMode.Brake)
+        self.r_Climb.setNeutralMode(ctre._ctre.NeutralMode.Brake)
 
         # ==>> It would be really helpful to add comments that explain what these variables
         # ==>> are for, and what their legal values are.
+
+        #Configures Autonomous State Variables
         self.autoS1 = 'b'
         self.autoS2 = 'b'
         self.autoS3 = 'b'
 
+        #Configures autonomous Stage Variable, Starting at '1'
         self.autoStage = '1'
 
 
@@ -155,11 +161,11 @@ class MyRobot(wpilib.TimedRobot):
 
         # ==>> We will need to uncomment the following lines in order to read the auto switch.
 
-        ### These are the setting the 4 plugs into the roboRIO for the multiple autonomous mode.
-        #self.auto_switch0 = wpilib.DigitalInput(0)                                                                                                                                                 6.
-        #self.auto_switch1 = wpilib.DigitalInput(1)
-        #self.auto_switch2 = wpilib.DigitalInput(2)
-        #self.auto_switch3 = wpilib.DigitalInput(3)
+        # These are the setting the 4 plugs into the roboRIO for the multiple autonomous mode.
+        self.auto_switch0 = wpilib.DigitalInput(0)
+        self.auto_switch1 = wpilib.DigitalInput(1)
+        self.auto_switch2 = wpilib.DigitalInput(2)
+        self.auto_switch3 = wpilib.DigitalInput(3)
 
         kTimeout = 30
         kLoop = 0
@@ -205,16 +211,7 @@ class MyRobot(wpilib.TimedRobot):
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
 
-        """
-        self.autoMode = self.getAutoSwitch()
-        remainderDelay = self.autoMode % 3
-        if remainderDelay == 0:
-            self.drivedelayseconds = 0
-        elif remainderDelay == 1:
-            self.drivedelayseconds = 2
-        else:
-            self.drivedelayseconds = 4
-        """
+
 
         self.ourTimer.reset()
         self.ourTimer.start()
@@ -239,6 +236,7 @@ class MyRobot(wpilib.TimedRobot):
         #ClimbPos = self.ClimbCoder.getSelectedSensorPosition()
 
         # ==>> Rod recommends changing from print statements to using the SmartDashboard.
+        #Teo says: I dont know how to do that yet but ill put it on my list
         print(man1_encoder)
 
         if self.autoStage =='1':
@@ -249,7 +247,7 @@ class MyRobot(wpilib.TimedRobot):
                 self.autoStage = '2'
         # ==>> I think this next line would be better as an "elif", to make it clear that
         # ==>> you are exhaustively going through the possible values of self.autoStage.
-        if self.autoStage =='2':
+        elif self.autoStage =='2':
             if self.autoMode == 0:
                 if r_encoderPos <= 7500:
                     self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
@@ -316,6 +314,40 @@ class MyRobot(wpilib.TimedRobot):
                     pass
                 if self.autoMode == 1 or self.autoMode == 3:
                     self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity)
+                    if 11000 <= man1_encoder and man1_encoder <= 11400:
+
+                        if self.autoS1 == 'b':
+                            time.sleep(2)
+                            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+                            time.sleep(1.5)
+                            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                            time.sleep(3)
+                            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                            self.autoS1 = 'f'
+                    if 11000 <= man1_encoder and man1_encoder <= 11400:
+                        if self.autoS1 == 'f':
+                            if self.autoS2 == 'b':
+                                time.sleep(1)
+                                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+                                time.sleep(1.5)
+                                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                                time.sleep(3)
+                                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                                self.autoS2 = 'f'
+                                self.autoS1 = 'n'
+                    if 11000 <= man1_encoder and man1_encoder <= 11400:
+                        if self.autoS2 == 'f':
+                            time.sleep(1)
+                            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                            time.sleep(1)
+                            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
+                # ==>> End of block to be unindented.  That way the "if self.autoMode ==1 ..." block is the same level
+                # ==>> as the "if self.autoMode == 2..." below.
+                if self.autoMode == 2 or self.autoMode == 4:
+                    self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity2)
                     if 14640 <= man1_encoder and man1_encoder <= 14650:
 
                         if self.autoS1 == 'b':
@@ -346,102 +378,16 @@ class MyRobot(wpilib.TimedRobot):
                             self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
                             time.sleep(1)
                             self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
-                # ==>> End of block to be unindented.  That way the "if self.autoMode ==1 ..." block is the same level
-                # ==>> as the "if self.autoMode == 2..." below.
-            if self.autoMode == 2 or self.autoMode == 3:
-                self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity2)
-                if 14640 <= man1_encoder and man1_encoder <= 14650:
-
-                    if self.autoS1 == 'b':
-                        time.sleep(2)
-                        self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
-                        time.sleep(1.5)
-                        self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                        self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-                        time.sleep(3)
-                        self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                        self.autoS1 = 'f'
-                if 14640 <= man1_encoder and man1_encoder <= 14650:
-                    if self.autoS1 == 'f':
-                        if self.autoS2 == 'b':
-                            time.sleep(1)
-                            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
-                            time.sleep(1.5)
-                            self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-                            time.sleep(3)
-                            self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                            self.autoS2 = 'f'
-                            self.autoS1 = 'n'
-                if 14640 <= man1_encoder and man1_encoder <= 14650:
-                    if self.autoS2 == 'f':
-                        time.sleep(1)
-                        self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                        self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-                        time.sleep(1)
-                        self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
 
 
 
         # self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
         #if 11000 <= man1_encoder and man1_encoder <= 11400:
         #    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-<<<<<<< Updated upstream
-=======
-        if 14640 <= man1_encoder and man1_encoder <= 14650:
-            if self.autoS1 == 'b':
-                time.sleep(2)
-                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
-                time.sleep(1.5)
-                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-                time.sleep(3)
-                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                self.autoS1 = 'f'
-        if 14640 <= man1_encoder and man1_encoder <= 14650:
-            if self.autoS1 == 'f':
-                if self.autoS2 == 'b':
-                    time.sleep(1)
-                    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
-                    time.sleep(1.5)
-                    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                    self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-                    time.sleep(3)
-                    self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                    self.autoS2 = 'f'
-                    self.autoS1 = 'n'
-        if 14640 <= man1_encoder and man1_encoder <= 14650:
-            if self.autoS2 == 'f':
-                time.sleep(1)
-                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-                time.sleep(1)
-                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.85)
-
-
-
-
         else:
             self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
             self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
-
-
-
-
-
-
-        if self.autoMode == 0 or self.autoMode == 1 or self.autoMode == 2:
-            self.AutoPC()
-
-        elif (self.autoMode == 3 or self.autoMode == 4 or self.autoMode == 5):
-            self.AutoPM()
-
-        elif (self.autoMode == 6 or self.autoMode == 7 or self.autoMode == 8):
-            self.AutoPF()
-
-        else:
-            self.AutoD()
 
     # D=Drive forward
     """
@@ -475,7 +421,7 @@ class MyRobot(wpilib.TimedRobot):
     def AutoD(self):
         pass
     """
->>>>>>> Stashed changes
+
 
         #if self.ourTimer.hasPeriodPassed(period: seconds) → bool == True:
     def teleopInit(self):
@@ -539,24 +485,19 @@ class MyRobot(wpilib.TimedRobot):
         if self.l_joy.getRawButton(1):
             # self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
             self.man1Shooter.set(ctre._ctre.ControlMode.Velocity, self.targetVelocity)
-        else:
-            self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-
-        # ==>> This section conflicts with the previous section.  If
-        # ==>> left button 2 is not pressed, the above will either set the kicker
-        # ==>> to zero or negative.  But below, the kicker will get set to something,
-        # ==>> and if they aren't the same, the motor will not do what you want.
-        # ==>> In general, it is best to set the motors in a single block of code
-        # ==>> that handles every possible case.
-        if 11000 <= man1_encoder and man1_encoder <= 11050:
-            if self.l_joy.getRawButton(1):
-                self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
-                #self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.55)
+            if 11000 <= man1_encoder and man1_encoder <= 11050:
+                if self.l_joy.getRawButton(1):
+                    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.75)
+                    # self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.55)
+                else:
+                    self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+                    # self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
             else:
                 self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                #self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
         else:
+            self.man1Shooter.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
             self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
+
 
         # This has the color sensor collect color value
         color = self.colorSensor.getColor()
@@ -587,40 +528,6 @@ class MyRobot(wpilib.TimedRobot):
             colorstring = 'Y'
 
         # ==>> colorstring1 and colorstring2 are not used.  What are they for?
-        if GameData == 'B':
-            if colorstring == 'R' or 'G':
-                colorstring1 = 'None'
-                colorstring2 = 'None'
-            else:
-                colorstring1 = 'R'
-                colorstring2 = 'G'
-        elif GameData == 'R':
-            if colorstring == 'B' or 'Y':
-                colorstring1 = 'None'
-                colorstring2 = 'None'
-            else:
-                colorstring1 = 'B'
-                colorstring2 = 'Y'
-        elif GameData == 'G':
-            if colorstring == 'Y' or 'R':
-                colorstring1 = 'None'
-                colorstring2 = 'None'
-            else:
-                colorstring1 = 'Y'
-                colorstring2 = 'R'
-        elif GameData == 'Y':
-            if colorstring == 'B' or 'G':
-                colorstring1 = 'None'
-                colorstring2 = 'None'
-            else:
-                colorstring1 = 'B'
-                colorstring2 = 'G'
-
-        # ==>> These 3 values are not used, so we could delete these 4 lines.
-        # defines color values
-        red = color.red
-        blue = color.blue
-        green = color.green
 
         # ==>> As noted above, if we aren't using it, we should delete it.
         # keeps pace and prints results
