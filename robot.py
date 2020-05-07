@@ -27,23 +27,20 @@ class MyRobot(wpilib.TimedRobot):
         self.colormatcher = ColorMatch()
         # This defines the how confident in the chosen color the matcher must be
         self.colormatcher.setConfidenceThreshold(0.95)
-<<<<<<< Updated upstream
 
 
         self.BlueTarget = wpilib.Color(0.143, 0.427, 0.429)
         self.GreenTarget = wpilib.Color(0.197, 0.561, 0.240)
         self.RedTarget = wpilib.Color(0.561, 0.232, 0.114)
         self.YellowTarget = wpilib.Color(0.361, 0.524, 0.113)
-<<<<<<< Updated upstream
 
         # This adds our target values to colormatcher
         self.colormatcher.addColorMatch(self.BlueTarget)
         self.colormatcher.addColorMatch(self.GreenTarget)
         self.colormatcher.addColorMatch(self.RedTarget)
         self.colormatcher.addColorMatch(self.YellowTarget)
-<<<<<<< Updated upstream
-=======
 
+        #This configures variables for later use
         self.man2_state = 'Before'
         self.man2_state2 = 'Before'
         self.man2_state3 = 'Before'
@@ -52,11 +49,6 @@ class MyRobot(wpilib.TimedRobot):
         self.color1 = 'Unknown'
         self.temp = 1
         ColorWheel = ''
-
-        # ==>> We are not currently using this variable, except to increment it in teleopPeriodic().
-        # ==>> Originally, it helped slow down printing.  If we aren't going to use it, we should
-        # ==>> just delete it here and in teleopPeriodic().
-
 
         # Set up drive train motor controllers, Falcon 500 using TalonFX.
         self.l_motorBack = ctre.TalonFX(1)
@@ -69,15 +61,9 @@ class MyRobot(wpilib.TimedRobot):
 
         self.r_motorFront = ctre.TalonFX(4)
 
-        # ==>> Shouldn't these be TalonSRX?  TalonFX is for the Falcons.
-        # ==>> They are very similar, but not identical.
+        #Configures Motors for our climbing mechagnism
         self.r_Climb = ctre.TalonSRX(11)
         self.l_Climb = ctre.TalonSRX(12)
-
-        # ==>> See Rod's post in the #programming Slack channel on Thursday, 2020-03-05.
-        # ==>> I made some suggestions about how we might get the climber encoder working
-        # ==>> based on previous years' code.
-        #self.ClimbCoder = wpilib._wpilib.Encoder(12, bool = False, encodingType
 
         self.l_Climb.follow(self.r_Climb)
         self.l_Climb.setInverted(ctre._ctre.InvertType.FollowMaster)
@@ -88,29 +74,20 @@ class MyRobot(wpilib.TimedRobot):
         self.l_motorBack.setInverted(ctre._ctre.InvertType.FollowMaster)
         self.r_motorBack.setInverted(ctre._ctre.InvertType.FollowMaster)
 
-        ### Rod's suggestion: rename "self.r_man1" to something that will be more
-        ### descriptive in the long term, when you have forgotten that "man1" was the
-        ### first manipulator, the one for the control panel.  And "l" and "r" don't really
-        ### make sense for the launcher/kicker/elevator.  I do like the comments "launcher" and
-        ### "kicker".
-        ### Hint: to rename a variable everywhere with Pycharm, you can select the variable,
-        ### then use the menu item Refactor > Rename to rename it.
 
         #Teo: That command didnt work for me... maybe I was using it wrong?
 
-        # launcher
+        # Configures man1 motors for our collection Tread, power cell kicker and power cell shooter
         self.man1Shooter = ctre.TalonFX(7)
         self.man1Kicker = ctre.TalonSRX(8)
         self.man1Kicker.setInverted(True)
         self.man1Tread = ctre.TalonSRX(9)
         self.man1Tread.setInverted(False)
-        self.Collector = ctre.TalonSRX(10)
-        # kicker
 
-        ### Rod's suggestion: rename "self.r_man2" to something that will be more
-        ### descriptive in the long term, when you have forgotten that "man2" was the
-        ### second manipulator, the one for the control panel.  For instance: ct_spinner_left,
-        ### and include a comment describing what a "ct_spinner" is.
+        # Configures motor for power cell collection device
+        self.Collector = ctre.TalonSRX(10)
+
+        #
         self.r_man2 = ctre.TalonSRX(5)
         self.r_man2.setInverted(True)
 
@@ -213,8 +190,6 @@ class MyRobot(wpilib.TimedRobot):
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
 
-
-
         self.ourTimer.reset()
         self.ourTimer.start()
 
@@ -273,44 +248,20 @@ class MyRobot(wpilib.TimedRobot):
                     motorState = 'on'
                     self.autoStage = '3'
 
+            #
             elif self.autoMode == 2 or self.autoMode == 4:
-                # ==>> The logic below could be simplified into the form:
-                # ==>> if r_encoderPos <= 7500:
-                # ==>>     <drive>
-                # ==>> elif r_encoderPos <= 15500:
-                # ==>>     <turn>
-                # ==>> else:
-                # ==>>     <stop and change stage>
+
                 if r_encoderPos <= 7500:
                     self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
                     self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
+                elif r_encoderPos <= 15500:
+                    self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
+                    self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, -0.25)
                 else:
-                    self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
                     self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-
-                if r_encoderPos >= 7500:
-                    if r_encoderPos <= 15500:
-                        self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.25)
-                        self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, -0.25)
-                    else:
-                        self.r_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                        self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
-                if r_encoderPos >= 15500:
-                    motorState = 'on'
+                    self.l_motorFront.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
                     self.autoStage = '3'
-                    # print (Time)
 
-            # ==>> I think that this whole block from here to my next comment
-            # ==>> needs to be unindented one step (4 spaces),
-            # ==>> so that it is at the same stage as the "if self.autoStage == '2' above
-            # ==>> (or the "elif" if you change it per the comment).  You want it to be
-            # ==>> tried when autoStage doesn't equal '1' or '2'.
-            # ==>> Also, we would be better off transitioning away from time.sleep() so that
-            # ==>> each call of autoPeriodic() can execute quickly.  But I would not suggest
-            # ==>> changing it until we get access to the robot again.
-            # ==>> Finally, man1_encoder is only obtained once at the top of the function, so
-            # ==>> after a time.sleep() the value is stale and doesn't represent the shooter
-            # ==>> speed at that moment.  At a minimum, we should get the value again.
             elif self.autoStage == '3':
                 if self.autoMode == 0:
                     pass
@@ -521,7 +472,6 @@ class MyRobot(wpilib.TimedRobot):
         confidence = 0.95
         # uses confidence factor to determine closest color values
         matchedcolor = self.colormatcher.matchClosestColor(color, confidence)
-<<<<<<< Updated upstream
 
         # uses estimated color values to return exact preset colors for printing
         if matchedcolor.red == self.BlueTarget.red and matchedcolor.green == self.BlueTarget.green and matchedcolor.blue == self.BlueTarget.blue:
@@ -539,8 +489,6 @@ class MyRobot(wpilib.TimedRobot):
         elif matchedcolor.red == self.YellowTarget.red and matchedcolor.green == self.YellowTarget.green and matchedcolor.blue == self.YellowTarget.blue:
             colorstring = 'Y'
 
-=======
-        
         #uses estimated color values to return exact preset colors for printing
         if matchedcolor.red == self.BlueTarget.red and matchedcolor.green == self.BlueTarget.green and matchedcolor.blue == self.BlueTarget.blue:
             colorstring = 'blue'
@@ -553,8 +501,7 @@ class MyRobot(wpilib.TimedRobot):
         elif matchedcolor.red == self.YellowTarget.red and matchedcolor.green == self.YellowTarget.green and matchedcolor.blue == self.YellowTarget.blue:
             colorstring = 'yellow'
             
-        
->>>>>>> Stashed changes
+
         #defines color values
         red = color.red
         blue = color.blue
@@ -567,7 +514,7 @@ class MyRobot(wpilib.TimedRobot):
             print ('{:5.3f} {:5.3f} {:5.3f} {} {} {:5.3f} {:5.3f} {:5.3f} {}'.format(color.red, color.green, color.blue, colorstring, confidence, matchedcolor.red, matchedcolor.green, matchedcolor.blue, GameData))
             print(self.temp)
 
-        """
+
 
         if self.man2_state == 'Before':
             self.r_man2.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
