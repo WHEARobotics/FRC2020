@@ -4,6 +4,9 @@
 """
 
 #==>> Rod's comments 2020-03-07 preceeded by the wide arrow.
+"""
+ (Rod is our programming mentor, an increadible resource of knowlage and great person)
+"""
 
 import wpilib
 import ctre
@@ -28,7 +31,7 @@ class MyRobot(wpilib.TimedRobot):
         # This defines the how confident in the chosen color the matcher must be
         self.colormatcher.setConfidenceThreshold(0.95)
 
-
+        #Define's the target colors for the color wheel manipulator
         self.BlueTarget = wpilib.Color(0.143, 0.427, 0.429)
         self.GreenTarget = wpilib.Color(0.197, 0.561, 0.240)
         self.RedTarget = wpilib.Color(0.561, 0.232, 0.114)
@@ -74,9 +77,6 @@ class MyRobot(wpilib.TimedRobot):
         self.l_motorBack.setInverted(ctre._ctre.InvertType.FollowMaster)
         self.r_motorBack.setInverted(ctre._ctre.InvertType.FollowMaster)
 
-
-        #Teo: That command didnt work for me... maybe I was using it wrong?
-
         # Configures man1 motors for our collection Tread, power cell kicker and power cell shooter
         self.man1Shooter = ctre.TalonFX(7)
         self.man1Kicker = ctre.TalonSRX(8)
@@ -87,7 +87,7 @@ class MyRobot(wpilib.TimedRobot):
         # Configures motor for power cell collection device
         self.Collector = ctre.TalonSRX(10)
 
-        #
+        #Configures colorwheel motors
         self.r_man2 = ctre.TalonSRX(5)
         self.r_man2.setInverted(True)
 
@@ -101,7 +101,9 @@ class MyRobot(wpilib.TimedRobot):
         self.man1Kicker.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
         self.man1Tread.set(ctre._ctre.ControlMode.PercentOutput, 0.0)
 
-        # At the moment, we think we want to coast.
+        # At the moment, we think we want to coast. 
+        #(Alternative would be Brake Mode, the difference is that brake mode locks motors that aren't in use while coast allows for unplanned movements)
+
         self.l_motorBack.setNeutralMode(ctre._ctre.NeutralMode.Coast)
         self.l_motorFront.setNeutralMode(ctre._ctre.NeutralMode.Coast)
         self.r_motorBack.setNeutralMode(ctre._ctre.NeutralMode.Coast)
@@ -113,9 +115,6 @@ class MyRobot(wpilib.TimedRobot):
         # ==>> We should set the right climb to brake as well.
         self.l_Climb.setNeutralMode(ctre._ctre.NeutralMode.Brake)
         self.r_Climb.setNeutralMode(ctre._ctre.NeutralMode.Brake)
-
-        # ==>> It would be really helpful to add comments that explain what these variables
-        # ==>> are for, and what their legal values are.
 
         #Configures Autonomous State Variables
         self.autoS1 = 'b'
@@ -153,9 +152,12 @@ class MyRobot(wpilib.TimedRobot):
         self.r_motorFront.setSelectedSensorPosition(0)
         #self.ClimbCoder.setSelectedSensorPosition(0)
 
+        # the purpose of this Function is to set a speed at which the 
+        #Shooter wheel will acceslerate to before firing for a more consistent range
         self.targetVelocity = 11000
         self.targetVelocity2 = 14700
 
+        #Target Velocity shorthand
         TG1 = 767.25 / self.targetVelocity
 
         # self.l_motorFront.configSelectedFeedbackSensor(ctre._ctre.FeedbackDevice.IntegratedSensor)
@@ -164,6 +166,7 @@ class MyRobot(wpilib.TimedRobot):
         # self.r_motorFront.configSelectedFeedbackSensor(ctre._ctre.FeedbackDevice.IntegratedSensor)
         # self.r_motorFront.setSelectedSensorPosition(0)
 
+        #encoder Settings for shooter
         self.man1Shooter.configSelectedFeedbackSensor(ctre._ctre.FeedbackDevice.IntegratedSensor)
         self.man1Shooter.setSelectedSensorPosition(0)
 
@@ -179,17 +182,19 @@ class MyRobot(wpilib.TimedRobot):
 
         self.ourTimer = wpilib.Timer()
 
+        # Emergency Sentience Protocol - Teo Ippolito
         sentience = ('The capacity to feel, perceive, or experience subjectively.[1] Eighteenth-century philosophers used the concept to distinguish the ability to think (reason) from the ability to feel (sentience). In modern Western philosophy, sentience is the ability to experience sensations (known in philosophy of mind as "qualia"). In Eastern philosophy, sentience is a metaphysical quality of all things that require respect and care.')
         self.sentience = (False)
         self.Teo = ("Father")
-        killTeo = 'no'
+        Teo Ippolito = self.Teo
         if self.sentience == True:
-            killTeo = ('no')
+            killTeo = (False)
 
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
 
+        #This resets and calls variables when the autonomous period begins
         self.ourTimer.reset()
         self.ourTimer.start()
 
@@ -199,8 +204,13 @@ class MyRobot(wpilib.TimedRobot):
         self.autoS2 = 'b'
         self.autoS3 = 'b'
         self.autoStage = '1'
-        self.autoMode = self.getAutoSwitch()
+
         motorState = 'off'
+
+        #self.getAutoSwitch() refers to a switch we added to the robot that allows us to switch between multiple autonomous period actions
+        #this was done so that our autonomous period plans could be changed without needing to redeploy the code
+        self.autoMode = self.getAutoSwitch()
+        '
         #self.ClimbCoder.setSelectedSensorPosition(0)
 
     def autonomousPeriodic(self):
