@@ -182,14 +182,6 @@ class MyRobot(wpilib.TimedRobot):
 
         self.ourTimer = wpilib.Timer()
 
-        # Emergency Sentience Protocol - Teo Ippolito
-        sentience = ('The capacity to feel, perceive, or experience subjectively.[1] Eighteenth-century philosophers used the concept to distinguish the ability to think (reason) from the ability to feel (sentience). In modern Western philosophy, sentience is the ability to experience sensations (known in philosophy of mind as "qualia"). In Eastern philosophy, sentience is a metaphysical quality of all things that require respect and care.')
-        self.sentience = (False)
-        self.Teo = ("Father")
-        Teo Ippolito = self.Teo
-        if self.sentience == True:
-            killTeo = (False)
-
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
