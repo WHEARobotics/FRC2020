@@ -202,7 +202,6 @@ class MyRobot(wpilib.TimedRobot):
         #self.getAutoSwitch() refers to a switch we added to the robot that allows us to switch between multiple autonomous period actions
         #this was done so that our autonomous period plans could be changed without needing to redeploy the code
         self.autoMode = self.getAutoSwitch()
-        '
         #self.ClimbCoder.setSelectedSensorPosition(0)
 
     def autonomousPeriodic(self):
